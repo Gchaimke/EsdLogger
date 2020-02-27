@@ -13,4 +13,11 @@ repositories {
 
 dependencies {
     testCompile 'junit:junit:4.12'
+    compile group:'org.xerial', name:'sqlite-jdbc', version:'3.30.1'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'esdLogger.Main'
+    }
 }

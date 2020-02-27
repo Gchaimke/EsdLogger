@@ -19,9 +19,21 @@ public class Main {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new mainJFrame().setVisible(true);
+                new MainJFrame().setVisible(true);
             }
         });
+        
+        java.awt.EventQueue.invokeLater(() -> {
+            String DBPath = "test.db";
+            SQLiteDB sql = new SQLiteDB();
+            sql.createNewDatabase(DBPath);
+            sql.createNewTable(DBPath, "employees");
+            sql.insert(DBPath,"Chaim",10000);
+            sql.update(DBPath, 0, 25000);
+            sql.delete(DBPath, 8);
+            sql.selectAll(DBPath);
+        });
+        
     }
     
 }
