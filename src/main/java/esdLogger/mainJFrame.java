@@ -9,7 +9,7 @@ package esdLogger;
  *
  * @author gchaim
  */
-public class mainJFrame extends javax.swing.JFrame {
+public class MainJFrame extends javax.swing.JFrame {
 
     /**
      * Creates new form mainJFrame
