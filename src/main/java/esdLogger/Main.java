@@ -28,9 +28,9 @@ public class Main {
             SQLiteDB sql = new SQLiteDB();
             sql.createNewDatabase(DBPath);
             sql.createNewTable(DBPath, "employees");
-            sql.insert(DBPath,"Chaim",10000);
+            sql.insert(DBPath,"Yossi",10000);
             sql.update(DBPath, 0, 25000);
-            sql.delete(DBPath, 8);
+            sql.delete(DBPath, 4);
             sql.selectAll(DBPath);
         });
         
