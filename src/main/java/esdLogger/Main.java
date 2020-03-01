@@ -25,13 +25,21 @@ public class Main {
         
         java.awt.EventQueue.invokeLater(() -> {
             String DBPath = "test.db";
+            String month_year = "month0320";
+            String user = "77";
             SQLiteDB sql = new SQLiteDB();
-            sql.createNewDatabase(DBPath);
-            sql.createNewTable(DBPath, "employees");
-            sql.insert(DBPath,"Yossi",10000);
-            sql.update(DBPath, 0, 25000);
-            sql.delete(DBPath, 4);
-            sql.selectAll(DBPath);
+            sql.createUsersTable(DBPath);
+            sql.addNewUser(DBPath,  user , "חיים", "01234", "012345");            
+            sql.setUserStatus(DBPath, month_year,user, 1);
+            sql.setUserStatus(DBPath, month_year,user, 0);
+            sql.setUserStatus(DBPath, month_year,user, 1);
+            System.out.println("User statistic:"+user);
+            sql.getUserStatistic(DBPath, month_year, user);
+            System.out.println("Month statistic:"+month_year);
+            sql.getMonthStatistic(DBPath, month_year);
+
+            System.out.println("All Users");
+            sql.getAllUsers(DBPath);
         });
         
     }
