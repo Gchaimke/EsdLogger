@@ -38,7 +38,7 @@ public class Main {
             System.out.println("Month statistic:"+month_year);
             sql.getMonthStatistic(DBPath, month_year);
 
-            System.out.println("All Users");
+            System.out.println("All Users:");
             sql.getAllUsers(DBPath);
         });
         

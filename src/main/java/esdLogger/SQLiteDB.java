@@ -134,7 +134,7 @@ public class SQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
             conn.commit();
-            System.out.println("user "+where+" has been deleted");
+            System.out.println("user "+where+" has been deleted!");
             conn.close();
             stmt.close();
         } catch (SQLException e) {  
