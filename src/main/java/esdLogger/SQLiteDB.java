@@ -12,6 +12,7 @@ package esdLogger;
 import java.sql.*;  
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class SQLiteDB {
     
@@ -142,27 +143,27 @@ public class SQLiteDB {
         }  
     }
     
-    public void getAllUsers(String DBPath){  
+    public ArrayList<User> getAllUsers(String DBPath){  
         String sql = "SELECT id,user_num,user_name,card1,card2 FROM users";  
-          
+        //User user = new User();
+        ArrayList<User> users;
+        users = new ArrayList<>();
         try {  
             Connection conn = this.connect(DBPath);  
             Statement stmt  = conn.createStatement();  
             ResultSet rs    = stmt.executeQuery(sql);  
               
             // loop through the result set  
-            while (rs.next()) {  
-                System.out.println(rs.getInt("id") +  "\t" +   
-                                   rs.getString("user_num") + "\t" +
-                                   rs.getString("user_name") + "\t" +
-                                   rs.getString("card1") + "\t" +
-                                   rs.getString("card2"));  
+            while (rs.next()) {
+                users.add(new User(rs.getString("user_name"),rs.getString("user_num"),rs.getString("card1"),rs.getString("card2")));  
             }
             conn.close();
             stmt.close();
+            return users;
         } catch (SQLException e) {  
             System.out.println(e.getMessage());  
         }
+        return null;
     }
     
     public void getUserStatistic(String DBPath, String tbName, String user){  

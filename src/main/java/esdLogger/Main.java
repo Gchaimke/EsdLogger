@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package esdLogger;
-
 /**
  *
  * @author gchaim
@@ -16,13 +15,26 @@ public class Main {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MainJFrame().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new MainJFrame().setVisible(true);
         });
+                
+        //SQLiteTest();
+        //UserTest();
         
+    }
+    
+    static void UserTest(){
+        User user = new User("Chaim", "77", "112233", "");
+        System.out.println(user.toString());
+        user.setUser_num("79");
+        user.setCard2("00000");
+        user.setName("Yossi");
+        System.out.println(user.getName()+" "+user.getUser_num()+" "+user.card1);
+        System.out.println(user.toString());
+    }
+    
+    static void SQLiteTest(){
         java.awt.EventQueue.invokeLater(() -> {
             String DBPath = "test.db";
             String month_year = "month0320";
@@ -41,7 +53,5 @@ public class Main {
             System.out.println("All Users:");
             sql.getAllUsers(DBPath);
         });
-        
     }
-    
 }
