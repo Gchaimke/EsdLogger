@@ -5,18 +5,23 @@
  */
 package esdLogger;
 
-/**
- *
- * @author gchaim
- */
 import java.sql.*;  
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+/**
+ * @version  1.0
+ * @since 03/03/20
+ * @author gchaim
+ */
 public class SQLiteDB {
+    String DBPath;
+    SQLiteDB(){
+        DBPath = "Main.db";
+    }
     
-    private Connection connect(String DBPath) {  
+    private Connection connect() {  
         // SQLite connection string  
         String url = "jdbc:sqlite:"+DBPath;  
         Connection conn = null;  
@@ -28,7 +33,11 @@ public class SQLiteDB {
         return conn;  
     }
     
-    public void createNewMonthTable(String DBPath,String tbName) {       
+    /**
+     * Create new table with current month and year name - monthMMYY
+     * @param tbName Name of Table
+     */
+    public void createNewMonthTable(String tbName) {       
         // SQL statement for creating a new table  
         String sql = "CREATE TABLE IF NOT EXISTS "+tbName+" (\n"  
                 + " id integer PRIMARY KEY,\n"  
@@ -37,7 +46,7 @@ public class SQLiteDB {
                 + " time text NOT NULL,\n"
                 + " status integer \n);";  
         try{  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             Statement stmt = conn.createStatement();  
             stmt.execute(sql);
             //System.out.println("Table "+tbName+" has been created.");
@@ -47,19 +56,23 @@ public class SQLiteDB {
         }  
     }
     
-    public void setUserStatus(String DBPath ,String month,String user_num, int status) {
+    /**
+     * Set if user pass the check
+     * @param user from class User
+     * @param status if user pass the test
+     */
+    public void setUserStatus(User user, int status) {
         LocalDateTime currTime = LocalDateTime.now();
         DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
         DateTimeFormatter day = DateTimeFormatter.ofPattern("dd");
         DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm");
-        String tbName ="month"+currTime.format(month_year);
-        createNewMonthTable(DBPath, tbName);
-        String sql = "INSERT INTO "+month+" (user_num, day, time, status) VALUES(?,?,?,?)";  
+        String tbName ="month_"+currTime.format(month_year);
+        String sql = "INSERT INTO "+tbName+" (user_num, day, time, status) VALUES(?,?,?,?)";  
  
         try{  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             PreparedStatement pstmt = conn.prepareStatement(sql);   
-            pstmt.setString(1,user_num);
+            pstmt.setString(1,user.getUser_num());
             pstmt.setString(2, currTime.format(day));
             pstmt.setString(3, currTime.format(time));
             pstmt.setInt(4, status);
@@ -71,7 +84,10 @@ public class SQLiteDB {
         }  
     }
     
-    public void createUsersTable(String DBPath) {       
+    /**
+     * Create table with all users
+     */
+    public void createUsersTable() {       
         // SQL statement for creating a new table  
         String sql = "CREATE TABLE IF NOT EXISTS users (\n"  
                 + " id integer PRIMARY KEY,\n"  
@@ -80,7 +96,7 @@ public class SQLiteDB {
                 + " card1 text UNIQUE,\n"
                 + " card2 text);";  
         try{  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             Statement stmt = conn.createStatement();  
             stmt.execute(sql);
             //System.out.println("Table users has been created.");
@@ -90,31 +106,43 @@ public class SQLiteDB {
         }  
     } 
     
-    public void addNewUser(String DBPath ,String user_num, String user_name, String card1, String card2) {  
-        String sql = "INSERT INTO users(user_num, user_name, card1, card2) VALUES(?,?,?,?)";  
- 
+    /**
+     * Add new user to users table
+     * @param user from user class
+     * @return true if user added to database
+     */
+    public boolean addNewUser(User user) {  
+        String sql = "INSERT INTO users(user_num, user_name, card1, card2) VALUES(?,?,?,?)";   
         try{
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             PreparedStatement pstmt = conn.prepareStatement(sql);  
-            pstmt.setString(1, user_num);  
-            pstmt.setString(2, user_name);
-            pstmt.setString(3, card1);
-            pstmt.setString(4, card2);
+            pstmt.setString(1, user.getUser_num());  
+            pstmt.setString(2, user.getName());
+            pstmt.setString(3, user.getCard1());
+            pstmt.setString(4, user.getCard2());
             pstmt.executeUpdate();
-            System.out.println("A new user "+user_name+" has been inserted with num: "+user_num);
+            System.out.println("A new user "+user.getName()+" has been inserted with num: "+user.getUser_num());
             conn.close();
             conn.commit();
             pstmt.close();
+            return true;
         } catch (SQLException e) {  
-            System.out.println(e.getMessage());  
+            System.out.println(e.getMessage());
+            return false;
         }  
     }
     
-    public void updateUser(String DBPath , String set, String where) {  
+    /**
+     * Change the user data
+     * @param set what to set like name='Adam' or user_num='1' or card1='0001'
+     * @param where where to set like id=1 or name='Adam'
+     * @return true if user updated
+     */
+    public boolean updateUser(String set, String where) {  
         String sql = "UPDATE users SET "+set+" WHERE "+where;  
    
         try{  
-            Connection conn = this.connect(DBPath);
+            Connection conn = this.connect();
             conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
@@ -122,15 +150,22 @@ public class SQLiteDB {
             System.out.println("User "+where+" has been updated with value: "+set);
             conn.close();
             stmt.close();
+            return true;
         } catch (SQLException e) {  
-            System.out.println(e.getMessage());  
+            System.out.println(e.getMessage());
+            return false;
         }  
     }
     
-    public void deleteUser(String DBPath ,String where) {  
+    /**
+     * Delete user
+     * @param where where to set like id=1 or name='Adam'
+     * @return true if user deleted
+     */
+    public boolean deleteUser(String where) {  
         String sql = "DELETE from users WHERE "+where;
         try{  
-            Connection conn = this.connect(DBPath);
+            Connection conn = this.connect();
             conn.setAutoCommit(false);
             Statement stmt = conn.createStatement();
             stmt.executeUpdate(sql);
@@ -138,18 +173,24 @@ public class SQLiteDB {
             System.out.println("user "+where+" has been deleted!");
             conn.close();
             stmt.close();
+            return true;
         } catch (SQLException e) {  
-            System.out.println(e.getMessage());  
+            System.out.println(e.getMessage());
+            return false;
         }  
     }
     
-    public ArrayList<User> getAllUsers(String DBPath){  
+    /**
+     * 
+     * @return list of all users as ArrayList from users table
+     */
+    public ArrayList<User> getAllUsers(){  
         String sql = "SELECT id,user_num,user_name,card1,card2 FROM users";  
         //User user = new User();
         ArrayList<User> users;
         users = new ArrayList<>();
         try {  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             Statement stmt  = conn.createStatement();  
             ResultSet rs    = stmt.executeQuery(sql);  
               
@@ -166,13 +207,17 @@ public class SQLiteDB {
         return null;
     }
     
-    public void getUserStatistic(String DBPath, String tbName, String user){  
+    public boolean userExists(User user){
+        return getAllUsers().stream().anyMatch((cUser) -> (cUser.equals(user)));
+    }
+    
+    public void getUserStatistic(String tbName, User user){  
         String sql = "SELECT users.user_num AS user,day,time,status,user_name FROM "+tbName+
                 " INNER JOIN users on users.user_num = "+tbName+".user_num" +
-                " WHERE "+tbName+".user_num='"+user+"'";  
+                " WHERE "+tbName+".user_num='"+user.getUser_num()+"'";  
           
         try {  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             Statement stmt  = conn.createStatement();  
             ResultSet rs    = stmt.executeQuery(sql);  
               
@@ -191,11 +236,11 @@ public class SQLiteDB {
         }
     }
     
-    public void getMonthStatistic(String DBPath, String tbName){  
+    public void getMonthStatistic(String tbName){  
         String sql = "SELECT users.user_num AS user,day,time,status,user_name FROM "+tbName+
                 " INNER JOIN users on users.user_num = "+tbName+".user_num";  
         try {  
-            Connection conn = this.connect(DBPath);  
+            Connection conn = this.connect();  
             Statement stmt  = conn.createStatement();  
             ResultSet rs    = stmt.executeQuery(sql);  
               
@@ -212,6 +257,27 @@ public class SQLiteDB {
         } catch (SQLException e) {  
             System.out.println(e.getMessage());  
         }
+    }
+    
+    public ArrayList<String> getTablesNames(){
+        ArrayList<String> dbNames;
+        dbNames = new ArrayList<>();
+        try {
+            Connection conn = this.connect();
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs = md.getTables(null, null, "%", null);
+            while (rs.next()) {
+                dbNames.add(rs.getString(3));
+            }
+            return dbNames;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+    
+    public boolean tableExists(String tbName){
+        return getTablesNames().stream().anyMatch((name) -> (name.equals(tbName)));
     }
            
 }

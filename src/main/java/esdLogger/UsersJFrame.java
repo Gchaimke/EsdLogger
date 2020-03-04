@@ -23,7 +23,7 @@ import javax.swing.table.TableModel;
 public final class UsersJFrame extends javax.swing.JFrame {
     private static JDialog dialog;
     private final DefaultTableModel dtm;
-    private static final String HEADER[] = new String[] {"כרטיס 2","כרטיס 1","שם","מספר עובד"};
+    private static final String HEADER[] = new String[] {"Worker Number","Name","Card 1","Card 2"};
     /**
      * Creates new form UsersJFrame
      */
@@ -57,10 +57,9 @@ public final class UsersJFrame extends javax.swing.JFrame {
         dtm.setColumnIdentifiers(HEADER);
         tbUsers.setModel(dtm);
         dtm.setRowCount(0);
-        String DBPath = "test.db";
         SQLiteDB sql = new SQLiteDB();
-        sql.getAllUsers(DBPath).forEach((user) -> {
-            dtm.addRow(new Object[]{user.getCard2(),user.getCard1(),user.getName(),user.getUser_num()});
+        sql.getAllUsers().forEach((user) -> {
+            dtm.addRow(new Object[]{user.getUser_num(),user.getName(),user.getCard1(),user.getCard2()});
         });
         alignTable();
     }
@@ -97,7 +96,7 @@ public final class UsersJFrame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "כרטיס 2", "כרטיס 1", "שם", "מספר עובד"
+                "Worker Number", "Name", "Card 1", "Card 2"
             }
         ));
         tbUsers.setAlignmentX(0.0F);

@@ -5,6 +5,9 @@
  */
 package esdLogger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  *
  * @author gchaim
@@ -37,6 +40,8 @@ public class AdminJFrame extends javax.swing.JFrame {
         jSpinner3 = new javax.swing.JSpinner();
         jSpinner4 = new javax.swing.JSpinner();
         jPanel3 = new javax.swing.JPanel();
+        jButtonUsers = new javax.swing.JButton();
+        jButtonAddUser = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         btnCancel = new javax.swing.JButton();
         btnSave = new javax.swing.JButton();
@@ -88,7 +93,7 @@ public class AdminJFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jSpinner4, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 315, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 305, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 290, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -116,18 +121,46 @@ public class AdminJFrame extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Network", jPanel2);
 
+        jButtonUsers.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButtonUsers.setText("User List");
+        jButtonUsers.setPreferredSize(new java.awt.Dimension(50, 50));
+        jButtonUsers.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonUsersActionPerformed(evt);
+            }
+        });
+
+        jButtonAddUser.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jButtonAddUser.setText("Add User");
+        jButtonAddUser.setPreferredSize(new java.awt.Dimension(50, 50));
+        jButtonAddUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAddUserActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButtonUsers, javax.swing.GroupLayout.DEFAULT_SIZE, 91, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(jButtonAddUser, javax.swing.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
+                .addGap(603, 603, 603))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButtonUsers, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonAddUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(515, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("Stored Data", jPanel3);
+        jTabbedPane1.addTab("User managment", jPanel3);
 
         btnCancel.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnCancel.setText("Cancel");
@@ -174,7 +207,7 @@ public class AdminJFrame extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(btnCancel, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 489, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 493, Short.MAX_VALUE)
                 .addComponent(btnSave, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addComponent(panelDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -219,6 +252,35 @@ public class AdminJFrame extends javax.swing.JFrame {
         this.hide();
     }//GEN-LAST:event_btnCancelActionPerformed
 
+    private void jButtonUsersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUsersActionPerformed
+        // TODO add your handling code here:
+        java.awt.EventQueue.invokeLater(() -> {
+            new UsersJFrame().setVisible(true);
+        });
+    }//GEN-LAST:event_jButtonUsersActionPerformed
+
+    private void jButtonAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAddUserActionPerformed
+        // TODO add your handling code here:
+        SQLiteDB sql = new SQLiteDB();
+        
+        LocalDateTime currTime = LocalDateTime.now();
+        DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
+        String tbName ="month_"+currTime.format(month_year);
+        //Create users table
+        if(!sql.tableExists("users"))
+            sql.createUsersTable();
+        //Create month table
+        if(!sql.tableExists(tbName))
+            sql.createNewMonthTable(tbName);
+            
+        User max = new User("Max Sherkovky","6", "00006", "");
+        if(!sql.userExists(max)){
+            sql.addNewUser(max );
+        }else{
+            System.out.println("User exists");
+        }
+    }//GEN-LAST:event_jButtonAddUserActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -228,35 +290,18 @@ public class AdminJFrame extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AdminJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AdminJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AdminJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AdminJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
+        
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AdminJFrame().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new AdminJFrame().setVisible(true);
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnSave;
+    private javax.swing.JButton jButtonAddUser;
+    private javax.swing.JButton jButtonUsers;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
