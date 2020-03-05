@@ -211,7 +211,11 @@ public class SQLiteDB {
         return getAllUsers().stream().anyMatch((cUser) -> (cUser.equals(user)));
     }
     
-    public void getUserStatistic(String tbName, User user){  
+    public ArrayList<Integer> getUserStatistic(String tbName, User user){
+        ArrayList<Integer> userStat;
+        userStat = new ArrayList<>();
+        int count=0;
+        String curentDay;
         String sql = "SELECT users.user_num AS user,day,time,status,user_name FROM "+tbName+
                 " INNER JOIN users on users.user_num = "+tbName+".user_num" +
                 " WHERE "+tbName+".user_num='"+user.getUser_num()+"'";  
@@ -222,18 +226,25 @@ public class SQLiteDB {
             ResultSet rs    = stmt.executeQuery(sql);  
               
             // loop through the result set  
-            while (rs.next()) {  
+            while (rs.next()) {
+                curentDay = rs.getString("day");
+                    if(curentDay.equals(rs.getString("day"))){
+                        count+=(Integer.valueOf(rs.getString("status")));
+                    }
                 System.out.println(rs.getString("user") + "\t" +
                                    rs.getString("user_name") + "\t" +
                                    rs.getString("day") + "\t" +
                                    rs.getString("time") + "\t" +
-                                   rs.getString("status"));  
+                                   rs.getString("status"));
+                userStat.add(count);
             }
             conn.close();
             stmt.close();
+            return userStat;
         } catch (SQLException e) {  
             System.out.println(e.getMessage());  
         }
+        return null;
     }
     
     public void getMonthStatistic(String tbName){  

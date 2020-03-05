@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -61,14 +62,14 @@ public final class UsersJFrame extends javax.swing.JFrame {
         sql.getAllUsers().forEach((user) -> {
             dtm.addRow(new Object[]{user.getUser_num(),user.getName(),user.getCard1(),user.getCard2()});
         });
-        alignTable();
+        alignTable(tbUsers);
     }
     
-    void alignTable(){
+    void alignTable(JTable table){
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment( JLabel.CENTER );
-        for(int i =0 ; i <4;i++){
-            tbUsers.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
+        for(int i =0 ; i <table.getColumnCount();i++){
+            table.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
         }
     }
     
