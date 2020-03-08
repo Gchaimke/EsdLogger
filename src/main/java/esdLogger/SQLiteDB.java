@@ -57,34 +57,6 @@ public class SQLiteDB {
     }
     
     /**
-     * Set if user pass the check
-     * @param user from class User
-     * @param status if user pass the test
-     */
-    public void setUserStatus(User user, int status) {
-        LocalDateTime currTime = LocalDateTime.now();
-        DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
-        DateTimeFormatter day = DateTimeFormatter.ofPattern("dd");
-        DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm");
-        String tbName ="month_"+currTime.format(month_year);
-        String sql = "INSERT INTO "+tbName+" (user_num, day, time, status) VALUES(?,?,?,?)";  
- 
-        try{  
-            Connection conn = this.connect();  
-            PreparedStatement pstmt = conn.prepareStatement(sql);   
-            pstmt.setString(1,user.getUser_num());
-            pstmt.setString(2, currTime.format(day));
-            pstmt.setString(3, currTime.format(time));
-            pstmt.setInt(4, status);
-            pstmt.executeUpdate();
-            //System.out.println("Status of user with num "+user_num+" has been updated to: "+status);
-            pstmt.close();
-        } catch (SQLException e) {  
-            System.out.println(e.getMessage());  
-        }  
-    }
-    
-    /**
      * Create table with all users
      */
     public void createUsersTable() {       
@@ -158,6 +130,60 @@ public class SQLiteDB {
     }
     
     /**
+     * Set 1 if user pass the check
+     * @param user from class User
+     */
+    public void setUserStatus(User user) {
+        LocalDateTime currTime = LocalDateTime.now();
+        DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
+        DateTimeFormatter day = DateTimeFormatter.ofPattern("dd");
+        DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm");
+        String tbName ="month_"+currTime.format(month_year);
+        String sql = "INSERT INTO "+tbName+" (user_num, day, time, status) VALUES(?,?,?,?)";  
+ 
+        try{  
+            Connection conn = this.connect();  
+            PreparedStatement pstmt = conn.prepareStatement(sql);   
+            pstmt.setString(1,user.getUser_num());
+            pstmt.setString(2, currTime.format(day));
+            pstmt.setString(3, currTime.format(time));
+            pstmt.setInt(4, 1);
+            pstmt.executeUpdate();
+            //System.out.println("Status of user with num "+user_num+" has been updated to: "+status);
+            pstmt.close();
+        } catch (SQLException e) {  
+            System.out.println(e.getMessage());  
+        }  
+    }
+    
+    /**
+     * Set 1 if user pass the check
+     * @param user from class User
+     * @param day set for day num
+     */
+    public void setUserStatus(User user, int day) {
+        LocalDateTime currTime = LocalDateTime.now();
+        DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
+        DateTimeFormatter time = DateTimeFormatter.ofPattern("HH:mm");
+        String tbName ="month_"+currTime.format(month_year);
+        String sql = "INSERT INTO "+tbName+" (user_num, day, time, status) VALUES(?,?,?,?)";  
+ 
+        try{  
+            Connection conn = this.connect();  
+            PreparedStatement pstmt = conn.prepareStatement(sql);   
+            pstmt.setString(1,user.getUser_num());
+            pstmt.setString(2, day+"");
+            pstmt.setString(3, currTime.format(time));
+            pstmt.setInt(4, 1);
+            pstmt.executeUpdate();
+            //System.out.println("Status of user with num "+user_num+" has been updated to: "+status);
+            pstmt.close();
+        } catch (SQLException e) {  
+            System.out.println(e.getMessage());  
+        }  
+    }
+    
+    /**
      * Delete user
      * @param where where to set like id=1 or name='Adam'
      * @return true if user deleted
@@ -211,32 +237,22 @@ public class SQLiteDB {
         return getAllUsers().stream().anyMatch((cUser) -> (cUser.equals(user)));
     }
     
-    public ArrayList<Integer> getUserStatistic(String tbName, User user){
-        ArrayList<Integer> userStat;
+    public ArrayList<String> getUserStatistic(String tbName, User user){
+        ArrayList<String> userStat;
         userStat = new ArrayList<>();
-        int count=0;
-        String curentDay;
         String sql = "SELECT users.user_num AS user,day,time,status,user_name FROM "+tbName+
                 " INNER JOIN users on users.user_num = "+tbName+".user_num" +
-                " WHERE "+tbName+".user_num='"+user.getUser_num()+"'";  
+                " WHERE "+tbName+".user_num='"+user.getUser_num()+"' ORDER BY day ASC";  
           
         try {  
             Connection conn = this.connect();  
             Statement stmt  = conn.createStatement();  
             ResultSet rs    = stmt.executeQuery(sql);  
               
-            // loop through the result set  
+            // loop through the result set 
+            userStat.add(user.getName());
             while (rs.next()) {
-                curentDay = rs.getString("day");
-                    if(curentDay.equals(rs.getString("day"))){
-                        count+=(Integer.valueOf(rs.getString("status")));
-                    }
-                System.out.println(rs.getString("user") + "\t" +
-                                   rs.getString("user_name") + "\t" +
-                                   rs.getString("day") + "\t" +
-                                   rs.getString("time") + "\t" +
-                                   rs.getString("status"));
-                userStat.add(count);
+                userStat.add(rs.getString("day")+","+rs.getString("time")+","+rs.getString("status"));                
             }
             conn.close();
             stmt.close();
@@ -247,27 +263,27 @@ public class SQLiteDB {
         return null;
     }
     
-    public void getMonthStatistic(String tbName){  
-        String sql = "SELECT users.user_num AS user,day,time,status,user_name FROM "+tbName+
-                " INNER JOIN users on users.user_num = "+tbName+".user_num";  
-        try {  
-            Connection conn = this.connect();  
-            Statement stmt  = conn.createStatement();  
-            ResultSet rs    = stmt.executeQuery(sql);  
-              
-            // loop through the result set  
-            while (rs.next()) {  
-                System.out.println(rs.getString("user_name") + "\t" +
-                                   rs.getString("user") + "\t" +
-                                   rs.getString("day") + "\t" +
-                                   rs.getString("time") + "\t" +
-                                   rs.getString("status"));  
+    public ArrayList<String[]> getMonthStatistic(String tbName){
+        int month =Integer.parseInt(tbName.substring(6,8));
+        CalendarJFrame cal = new CalendarJFrame();
+        ArrayList<String> workingDays = cal.getWorkingDays(month);
+        String[] userStats = new String[workingDays.size()];
+        ArrayList<User> users = getAllUsers();
+        ArrayList<String[]> usersStats;
+        usersStats = new ArrayList<>();
+        
+        users.forEach((User user) -> {
+            userStats[0] = user.name.toString();
+            ArrayList<String> userData = getUserStatistic(tbName, user);
+            System.out.println(user.name);
+            for(int i=1;i< userData.size();i++){
+                System.out.println(userData);
             }
-            conn.close();
-            stmt.close();
-        } catch (SQLException e) {  
-            System.out.println(e.getMessage());  
-        }
+            usersStats.add(userStats);
+            
+        });
+        System.out.println("Users statistic: "+usersStats);
+        return usersStats;
     }
     
     public ArrayList<String> getTablesNames(){

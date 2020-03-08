@@ -32,8 +32,8 @@ public class CalendarJFrame extends javax.swing.JFrame {
         this.dtm = new DefaultTableModel(0, 0);
         initComponents();
         
-        System.out.println(getWorkingDays(3));
-        System.out.println(getWorkingDays(4));
+        //System.out.println(getWorkingDays(3));
+        //System.out.println(getWorkingDays(4));
         
         showMonth(tbCalendar,3);
     }
@@ -53,7 +53,7 @@ public class CalendarJFrame extends javax.swing.JFrame {
         ArrayList<Integer> holidays;
         holidays = new ArrayList<>();
         
-        System.out.println("Current start day of year in month "+month+": "+startCal.get(Calendar.DAY_OF_YEAR));
+        //System.out.println("Current start day of year in month "+month+": "+startCal.get(Calendar.DAY_OF_YEAR));
         do {
           startCal.add(Calendar.DAY_OF_MONTH, 1);
           if (startCal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY
@@ -78,15 +78,12 @@ public class CalendarJFrame extends javax.swing.JFrame {
         table.setModel(dtm);
         dtm.setRowCount(0);
         SQLiteDB sql = new SQLiteDB();
-        sql.getAllUsers().forEach((user) -> {
-            dtm.addRow(new Object[]{user.getName()});
-            sql.getUserStatistic(tbName,user).forEach((day)->{
-                dtm.setValueAt("test", 0, 0);
-            });
-        });
+//        for(String user : sql.getMonthStatistic(tbName)) {
+//            String[] userData = user.split(",");
+//            dtm.addRow(userData);
+//        }
         prepareTable(table);
         jLabel1.setText("Month: "+month);
-        dtm.setValueAt(dtm.getColumnName(0), 1, 1);
     }
     
     static void prepareTable(JTable table){
@@ -119,13 +116,13 @@ public class CalendarJFrame extends javax.swing.JFrame {
         tbCalendar.setAutoCreateRowSorter(true);
         tbCalendar.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"chaim", "v", "v", "v", "v", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
+                {},
+                {},
+                {},
+                {}
             },
             new String [] {
-                "Worker Name", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25"
+
             }
         ));
         tbCalendar.setFillsViewportHeight(true);
