@@ -85,8 +85,7 @@ public class CalendarJFrame extends javax.swing.JFrame {
         do {
           startCal.add(Calendar.DAY_OF_MONTH, 1);
           if (startCal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
-          || startCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
-          || holidays.contains((Integer) startCal.get(Calendar.DAY_OF_YEAR))) {
+          || startCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
               days.add(startCal.get(Calendar.DAY_OF_MONTH)+"");
               ++workDays;
           }
