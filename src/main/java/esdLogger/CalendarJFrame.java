@@ -6,6 +6,7 @@
 package esdLogger;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -67,21 +68,62 @@ public class CalendarJFrame extends javax.swing.JFrame {
         return workingDays;
     }
     
+    final ArrayList<String> getNotWorkingDays(int month){
+        startCal = Calendar.getInstance();
+        endCal = Calendar.getInstance();
+        startCal.setTime(new Date(month+"/00/2020"));
+        endCal.setTime(new Date(month+1+"/00/2020"));
+        
+        ArrayList<String> days;
+        days = new ArrayList<>();
+        
+        ArrayList<Integer> holidays;
+        holidays = new ArrayList<>();
+        holidays.add(10);
+        
+        //System.out.println("Current start day of year in month "+month+": "+startCal.get(Calendar.DAY_OF_YEAR));
+        do {
+          startCal.add(Calendar.DAY_OF_MONTH, 1);
+          if (startCal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
+          || startCal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+          || holidays.contains((Integer) startCal.get(Calendar.DAY_OF_YEAR))) {
+              days.add(startCal.get(Calendar.DAY_OF_MONTH)+"");
+              ++workDays;
+          }
+        } while (startCal.getTimeInMillis() < endCal.getTimeInMillis());
+        
+        return days;
+    }
+    
+    final int monthDays(String month){
+        YearMonth yearMonthObject = YearMonth.of(Integer.parseInt(month.substring(2, 3)), Integer.parseInt(month.substring(0, 2)));
+        return yearMonthObject.lengthOfMonth();
+    }
+    
     final void showMonth(JTable table, int month){
         LocalDateTime currTime = LocalDateTime.now();
         DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
         String tbName ="month_"+currTime.format(month_year);
-        ArrayList<String> workingDays = getWorkingDays(month);
-        String[] HEADER;
-        HEADER = workingDays.toArray(new String[workingDays.size()]);
+        String[] HEADER = new String[monthDays(currTime.format(month_year))+1];
+        HEADER[0]="User Name";
+        for(int i=1;i<HEADER.length;i++)
+            HEADER[i]=i+"";
         dtm.setColumnIdentifiers(HEADER);
         table.setModel(dtm);
         dtm.setRowCount(0);
         SQLiteDB sql = new SQLiteDB();
-//        for(String user : sql.getMonthStatistic(tbName)) {
-//            String[] userData = user.split(",");
-//            dtm.addRow(userData);
-//        }
+        sql.getMonthStatistic(tbName,HEADER.length).forEach((userData) -> {
+            dtm.addRow(userData);
+        });
+        
+        ArrayList<String> days = getNotWorkingDays(month);
+        for(int i=0;i< dtm.getRowCount();i++){
+            for(int j =0;j<days.size();j++){
+                dtm.setValueAt("-", i, Integer.parseInt(days.get(j)));
+            }
+        }
+        
+        System.out.println(getNotWorkingDays(month));
         prepareTable(table);
         jLabel1.setText("Month: "+month);
     }

@@ -64,8 +64,8 @@ public class Main {
             if(!sql.userExists( max))
                 sql.addNewUser(max );
             //sql.setUserStatus(chaim, 3);
-            //sql.setUserStatus(slava, 5);
-            //sql.setUserStatus(max, 1);
+            sql.setUserStatus(slava, 11);
+            //sql.setUserStatus(max, 24);
 
             //System.out.println("User statistic:"+chaim.getName());
             //sql.getUserStatistic( tbName, chaim);
@@ -74,8 +74,8 @@ public class Main {
             //System.out.println("User statistic:"+max.getName());
             //sql.getUserStatistic( tbName, max);
 
-            System.out.println("Month statistic:"+tbName);
-            sql.getMonthStatistic( tbName);
+            //System.out.println("Month statistic:"+tbName);
+            //sql.getMonthStatistic( tbName);
             //System.out.println(sql.getUserStatistic(tbName,slava));
             System.out.println(sql.getTablesNames());
         });

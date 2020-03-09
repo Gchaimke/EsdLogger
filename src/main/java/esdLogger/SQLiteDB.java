@@ -263,27 +263,24 @@ public class SQLiteDB {
         return null;
     }
     
-    public ArrayList<String[]> getMonthStatistic(String tbName){
-        int month =Integer.parseInt(tbName.substring(6,8));
-        CalendarJFrame cal = new CalendarJFrame();
-        ArrayList<String> workingDays = cal.getWorkingDays(month);
-        String[] userStats = new String[workingDays.size()];
+    public ArrayList<String[]> getMonthStatistic(String tbName, int workingDays){
+        String[] userStats = new String[workingDays];
         ArrayList<User> users = getAllUsers();
-        ArrayList<String[]> usersStats;
-        usersStats = new ArrayList<>();
+        ArrayList<String[]> allUsersStats;
+        allUsersStats = new ArrayList<>();
         
         users.forEach((User user) -> {
-            userStats[0] = user.name.toString();
+            userStats[0] = user.name;
             ArrayList<String> userData = getUserStatistic(tbName, user);
-            System.out.println(user.name);
+            System.out.println(userData);
             for(int i=1;i< userData.size();i++){
-                System.out.println(userData);
+                int day =Integer.parseInt(userData.get(i).split(",")[0]);
+                if(day<userStats.length)
+                    userStats[day]="V";
             }
-            usersStats.add(userStats);
-            
+            allUsersStats.add(Arrays.copyOf(userStats, workingDays)); //Arrays.toString(userStats)
         });
-        System.out.println("Users statistic: "+usersStats);
-        return usersStats;
+        return allUsersStats;
     }
     
     public ArrayList<String> getTablesNames(){
