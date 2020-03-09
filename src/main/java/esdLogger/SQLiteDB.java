@@ -268,17 +268,25 @@ public class SQLiteDB {
         ArrayList<String[]> allUsersStats;
         allUsersStats = new ArrayList<>();
         
-        users.forEach((User user) -> {
-            userStats[0] = user.name;
-            ArrayList<String> userData = getUserStatistic(tbName, user);
-            System.out.println(userData);
-            for(int i=1;i< userData.size();i++){
-                int day =Integer.parseInt(userData.get(i).split(",")[0]);
-                if(day<userStats.length)
-                    userStats[day]="V";
-            }
-            allUsersStats.add(Arrays.copyOf(userStats, workingDays)); //Arrays.toString(userStats)
-        });
+        if(tableExists(tbName)){
+            users.forEach((User user) -> {
+                userStats[0] = user.name;
+                ArrayList<String> userData = getUserStatistic(tbName, user);
+                try {
+                    for(int i=1;i< userData.size();i++){
+                    int day =Integer.parseInt(userData.get(i).split(",")[0]);
+                    if(day<userStats.length)
+                        userStats[day]="V";
+                    }
+                } catch (NullPointerException e) {
+                    System.err.println("Error:"+e.getMessage());
+                }
+
+                allUsersStats.add(Arrays.copyOf(userStats, workingDays)); //Arrays.toString(userStats)
+            });
+        }else{
+            createNewMonthTable(tbName);
+        }
         return allUsersStats;
     }
     

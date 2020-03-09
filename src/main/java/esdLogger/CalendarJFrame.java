@@ -36,7 +36,7 @@ public class CalendarJFrame extends javax.swing.JFrame {
         //System.out.println(getWorkingDays(3));
         //System.out.println(getWorkingDays(4));
         
-        showMonth(tbCalendar,3);
+        showMonth(tbCalendar);
     }
     
     
@@ -47,9 +47,9 @@ public class CalendarJFrame extends javax.swing.JFrame {
         startCal.setTime(new Date(month+"/00/2020"));
         endCal.setTime(new Date(month+1+"/00/2020"));
         
-        ArrayList<String> workingDays;
-        workingDays = new ArrayList<>();
-        workingDays.add("Worker Name");
+        ArrayList<String> days;
+        days = new ArrayList<>();
+        days.add("Worker Name");
         
         ArrayList<Integer> holidays;
         holidays = new ArrayList<>();
@@ -60,12 +60,12 @@ public class CalendarJFrame extends javax.swing.JFrame {
           if (startCal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY
           && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY
           && !holidays.contains((Integer) startCal.get(Calendar.DAY_OF_YEAR))) {
-              workingDays.add(startCal.get(Calendar.DAY_OF_MONTH)+"");
+              days.add(startCal.get(Calendar.DAY_OF_MONTH)+"");
               ++workDays;
           }
         } while (startCal.getTimeInMillis() < endCal.getTimeInMillis());
         
-        return workingDays;
+        return days;
     }
     
     final ArrayList<String> getNotWorkingDays(int month){
@@ -77,11 +77,6 @@ public class CalendarJFrame extends javax.swing.JFrame {
         ArrayList<String> days;
         days = new ArrayList<>();
         
-        ArrayList<Integer> holidays;
-        holidays = new ArrayList<>();
-        holidays.add(10);
-        
-        //System.out.println("Current start day of year in month "+month+": "+startCal.get(Calendar.DAY_OF_YEAR));
         do {
           startCal.add(Calendar.DAY_OF_MONTH, 1);
           if (startCal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
@@ -99,7 +94,7 @@ public class CalendarJFrame extends javax.swing.JFrame {
         return yearMonthObject.lengthOfMonth();
     }
     
-    final void showMonth(JTable table, int month){
+    final void showMonth(JTable table){
         LocalDateTime currTime = LocalDateTime.now();
         DateTimeFormatter month_year = DateTimeFormatter.ofPattern("MMYY");
         String tbName ="month_"+currTime.format(month_year);
@@ -115,16 +110,38 @@ public class CalendarJFrame extends javax.swing.JFrame {
             dtm.addRow(userData);
         });
         
-        ArrayList<String> days = getNotWorkingDays(month);
+        ArrayList<String> days = getNotWorkingDays(Integer.parseInt(currTime.format(month_year).substring(2)));
         for(int i=0;i< dtm.getRowCount();i++){
             for(int j =0;j<days.size();j++){
                 dtm.setValueAt("-", i, Integer.parseInt(days.get(j)));
             }
         }
-        
-        System.out.println(getNotWorkingDays(month));
         prepareTable(table);
-        jLabel1.setText("Month: "+month);
+        lblCurrentMonth.setText(currTime.format(month_year));
+    }
+    
+        final void showMonth(JTable table,String month){
+        String tbName ="month_"+month;
+        String[] HEADER = new String[monthDays(month)+1];
+        HEADER[0]="User Name";
+        for(int i=1;i<HEADER.length;i++)
+            HEADER[i]=i+"";
+        dtm.setColumnIdentifiers(HEADER);
+        table.setModel(dtm);
+        dtm.setRowCount(0);
+        SQLiteDB sql = new SQLiteDB();
+        sql.getMonthStatistic(tbName,HEADER.length).forEach((userData) -> {
+            dtm.addRow(userData);
+        });
+        
+        ArrayList<String> days = getNotWorkingDays(Integer.parseInt(month.substring(2)));
+        for(int i=0;i< dtm.getRowCount();i++){
+            for(int j =0;j<days.size();j++){
+                dtm.setValueAt("-", i, Integer.parseInt(days.get(j)));
+            }
+        }
+        prepareTable(table);
+        lblCurrentMonth.setText(month);
     }
     
     static void prepareTable(JTable table){
@@ -148,9 +165,9 @@ public class CalendarJFrame extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tbCalendar = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        lblCurrentMonth = new javax.swing.JLabel();
+        btnNext = new javax.swing.JButton();
+        btnPrev = new javax.swing.JButton();
 
         setAlwaysOnTop(true);
 
@@ -169,18 +186,28 @@ public class CalendarJFrame extends javax.swing.JFrame {
         tbCalendar.setFillsViewportHeight(true);
         tbCalendar.setMaximumSize(new java.awt.Dimension(1920, 80));
         tbCalendar.setMinimumSize(new java.awt.Dimension(1920, 80));
-        tbCalendar.setNextFocusableComponent(jButton1);
+        tbCalendar.setNextFocusableComponent(btnNext);
         tbCalendar.setPreferredSize(new java.awt.Dimension(1920, 64));
         tbCalendar.setRowHeight(20);
         jScrollPane1.setViewportView(tbCalendar);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("curent month");
+        lblCurrentMonth.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        lblCurrentMonth.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblCurrentMonth.setText("curent month");
 
-        jButton1.setText(">>");
+        btnNext.setText(">>");
+        btnNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNextActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("<<");
+        btnPrev.setText("<<");
+        btnPrev.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPrevActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -190,22 +217,22 @@ public class CalendarJFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 761, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lblCurrentMonth, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton2)
+                        .addComponent(btnPrev)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton1)))
+                        .addComponent(btnNext)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
+                .addComponent(lblCurrentMonth)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE))
+                    .addComponent(btnNext, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnPrev, javax.swing.GroupLayout.DEFAULT_SIZE, 48, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -213,6 +240,31 @@ public class CalendarJFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNextActionPerformed
+        // TODO add your handling code here:
+        String month="";
+        String date = lblCurrentMonth.getText();
+        int m = Integer.parseInt(date.substring(0,2))+1;
+        if(m<10)
+            month="0"+m;
+        else
+            month = m+"";
+        System.out.println(month+date.substring(2));
+        showMonth(tbCalendar,month+date.substring(2));
+    }//GEN-LAST:event_btnNextActionPerformed
+
+    private void btnPrevActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrevActionPerformed
+        // TODO add your handling code here:
+        String month="";
+        String date = lblCurrentMonth.getText();
+        int m = Integer.parseInt(date.substring(0,2))-1;
+        if(m<10)
+            month="0"+m;
+        else
+            month = m+"";
+        showMonth(tbCalendar,month+date.substring(2));
+    }//GEN-LAST:event_btnPrevActionPerformed
 
     /**
      * @param args the command line arguments
@@ -244,10 +296,10 @@ public class CalendarJFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JButton btnNext;
+    private javax.swing.JButton btnPrev;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblCurrentMonth;
     private javax.swing.JTable tbCalendar;
     // End of variables declaration//GEN-END:variables
 }
